@@ -6,3 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+seccompiler = { version = "0.3.0", features = ["json"] }
+syscalls = "0.6.7"
+serde = { version = "1.0", features = ["derive"]}
+serde_json = "1.0"
+optional-field = "0.1.3"
