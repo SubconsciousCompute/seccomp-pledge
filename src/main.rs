@@ -75,7 +75,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     flush();
 
     // Retrieve the list of syscalls spawned by the process along with the arguments for each
-    let syscall_list: Vec<LurkList> = get_syscall_list(&application_name, &application_args);
+    let syscall_list: Vec<LurkList> = get_syscall_list(application_name, application_args);
     let mut filtered_syscall_list: Vec<SyscallList> = Vec::new();
 
     for syscall in syscall_list {
@@ -375,12 +375,11 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     // Install the seccomp filter for the current process
     if seccompiler::apply_filter(filter).is_err() {
         eprintln!("\nError: Unable to install filter");
-        return;
     };
 }
 
 // Pledge/unveil sandboxing
-pub fn pledge(application_name: &String, application_args: &Vec<String>) {
+pub fn pledge(application_name: &str, application_args: &Vec<String>) {
 
     let mut promises: Vec<String> = Vec::new();
 
@@ -564,7 +563,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
                     println!("Failed to execute process with sandboxing measures");
             };
         },
-        "n" | "N" | _ => {
+        _ => {
             println!("\nAborting...");
         },
     };
@@ -743,7 +742,6 @@ pub fn main() {
                 },
                 _ => {
                     eprintln!("\nError: Invalid input");
-                    return;
                 },
             };
         },
