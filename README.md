@@ -28,7 +28,7 @@ Since `seccomp` is Linux-specific, syscall filtering using this feature is suppo
 `seccomp-pledge` has the following dependencies:
 - [seccompiler](https://github.com/rust-vmm/seccompiler) - Provides easy-to-use Linux seccomp-bpf jailing
 - [lurk](https://github.com/JakWai01/lurk) - A pretty (simple) alternative to strace
-- [pledge](htpps://justine.lol/pledge) - Linux port of OpenBSD's `pledge(2)`
+- [pledge](https://justine.lol/pledge) - Linux port of OpenBSD's `pledge(2)`
 - [serde](https://serde.rs) - Framework for (de)serializing data structures in Rust
 - [wget](https://www.gnu.org/software/wget/) - Retrieve files from the web using HTTP(S)
 - [optional-field](https://github.com/cvpartner/optional-field) - Provides a Rust type for values that can be missing/null
