@@ -58,7 +58,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     flush();
 
     if io::stdin().read_line(&mut number_of_filters).is_err() {
-        eprintln!("\nFailed to read input");
+        eprintln!("\nError: Failed to read input");
         return;
     };
 
@@ -88,7 +88,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         flush();
         let mut input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
-            eprintln!("\nUnable to read input");
+            eprintln!("\nError: Unable to read input");
             return;
         };
         filter_name = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -96,13 +96,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         flush();
         input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
-            eprintln!("\nUnable to read input");
+            eprintln!("\nError: Unable to read input");
             return;
         };
         let count = match input.trim().parse() {
             Ok(number) => number,
             Err(_) => {
-                eprintln!("\nNot a number");
+                eprintln!("\nError: Not a number");
                 return;
             },
         };
@@ -115,7 +115,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
             print!("\nDo you want to create a universal rule for the syscall? [y/N] ");
             flush();
             if io::stdin().read_line(&mut input).is_err() {
-                eprintln!("\nUnable to read input");
+                eprintln!("\nError: Unable to read input");
                 return;
             };
             match input.trim() {
@@ -126,7 +126,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     print!("\nEnter the name of the syscall: ");
                     flush();
                     if io::stdin().read_line(&mut input).is_err() {
-                        eprintln!("\nUnable to read input");
+                        eprintln!("\nError: Unable to read input");
                         return;
                     };
                     let syscall: String = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -142,7 +142,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     print!("\nEnter the name of the syscall: ");
                     flush();
                     if io::stdin().read_line(&mut input).is_err() {
-                        eprintln!("\nUnable to read input");
+                        eprintln!("\nError: Unable to read input");
                         return;
                     };
                     let syscall: String = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -150,13 +150,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     print!("\nHow many arguments do you want to pattern-match? ");
                     flush();
                     if io::stdin().read_line(&mut input).is_err() {
-                        eprintln!("\nUnable to read input");
+                        eprintln!("\nError: Unable to read input");
                         return;
                     };
                     let number_of_args = match input.trim().parse() {
                         Ok(number) => number,
                         Err(_) => {
-                            eprintln!("\nNot a number");
+                            eprintln!("\nError: Not a number");
                             return;
                         },
                     };
@@ -166,13 +166,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         print!("\nEnter the index of the argument as per the syscall definition: ");
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
-                            eprintln!("\nUnable to read input");
+                            eprintln!("\nError: Unable to read input");
                             return;
                         };
                         let index = match input.trim().parse() {
                             Ok(number) => number,
                             Err(_) => {
-                                eprintln!("\nNot a number");
+                                eprintln!("\nError: Not a number");
                                 return;
                             },
                         };
@@ -181,7 +181,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         print!("\nEnter the comparison operator (\"eq\" for \"equal to\", \"ne\" for \"not equal to\", \"lt\" for \"less than\", \"le\" for \"less than or equal to\", \"gt\" for \"greater than\", \"ge\" for \"greater than or equal to\", \"masked_eq\" for masked equality): ");
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
-                            eprintln!("\nUnable to read input");
+                            eprintln!("\nError: Unable to read input");
                             return;
                         };
                         let op: String = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -190,7 +190,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         print!("\nEnter the argument size (dword = 4 bytes, qword = 8 bytes): ");
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
-                            eprintln!("\nUnable to read input");
+                            eprintln!("\nError: Unable to read input");
                             return;
                         };
                         let r#type: String = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -198,13 +198,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         print!("\nEnter the value to be checked against: ");
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
-                            eprintln!("\nUnable to read input");
+                            eprintln!("\nError: Unable to read input");
                             return;
                         };
                         let val = match input.trim().parse() {
                             Ok(number) => number,
                             Err(_) => {
-                                eprintln!("\nNot a number");
+                                eprintln!("\nError: Not a number");
                                 return;
                             },
                         };
@@ -214,7 +214,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         print!("\nDo you wish to provide an optional comment to provide meaning to each numeric value? [y/N] ");
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
-                            eprintln!("\nUnable to read input");
+                            eprintln!("\nError: Unable to read input");
                             return;
                         };
                         match input.trim() {
@@ -224,7 +224,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                                 print!("\nEnter the comment: ");
                                 flush();
                                 if io::stdin().read_line(&mut input).is_err() {
-                                    eprintln!("\nUnable to read input");
+                                    eprintln!("\nError: Unable to read input");
                                     return;
                                 };
                                 let comment = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -264,7 +264,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     args_list = Vec::new();
                 },
                 _ => {
-                    eprintln!("Invalid input");
+                    eprintln!("\nError: Invalid input");
                     return;
                 },
             };
@@ -274,7 +274,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         flush();
         input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
-            eprintln!("\nUnable to read input");
+            eprintln!("\nError: Unable to read input");
             return;
         };
         match_action = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -290,7 +290,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         flush();
         input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
-            eprintln!("\nUnable to read input");
+            eprintln!("\nError: Unable to read input");
             return;
         };
         mismatch_action = input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -315,7 +315,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     let mut writer = match File::create(filename) {
         Ok(file) => file,
         Err(_) => {
-            eprintln!("\nUnable to create file");
+            eprintln!("\nError: Unable to create file");
             return;
         },
     };
@@ -327,13 +327,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         match &serde_json::to_string_pretty(&filters) {
             Ok(json) => json,
             Err(_) => {
-                eprintln!("\nUnable to serialize to JSON");
+                eprintln!("\nError: Unable to serialize to JSON");
                 return;
             },
     }
     ).is_err()
     {
-        eprintln!("\nUnable to write to file");
+        eprintln!("\nError: Unable to write to file");
         return;
     };
 
@@ -341,7 +341,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     let json_input = match std::fs::read_to_string("filters.json") {
         Ok(json) => json,
         Err(_) => {
-            eprintln!("\nUnable to read file");
+            eprintln!("\nError: Unable to read file");
             return;
         },
     };
@@ -356,7 +356,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     {
         Ok(filtermap) => filtermap,
         Err(_) => {
-            eprintln!("\nUnable to compile filter into loadable BPF");
+            eprintln!("\nError: Unable to compile filter into loadable BPF");
             return;
         },
     };
@@ -365,7 +365,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     let filter = match filter_map.get(&filter_name) {
         Some(filter) => filter,
         _ => {
-            eprintln!("\nUnable to read BPF");
+            eprintln!("\nError: Unable to read BPF");
             return;
         },
     };
@@ -374,7 +374,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
 
     // Install the seccomp filter for the current process
     if seccompiler::apply_filter(filter).is_err() {
-        eprintln!("\nUnable to install filter");
+        eprintln!("\nError: Unable to install filter");
         return;
     };
 }
@@ -391,7 +391,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
         .arg("-c")
             .arg("wget -q -O ./pledge https://justine.lol/pledge/pledge.com && chmod +x ./pledge")
             .spawn().is_err() {
-                eprintln!("\nFailed to fetch pledge binary and make it executable");
+                eprintln!("\nError: Failed to fetch pledge binary and make it executable");
                 return;
             };
 
@@ -410,14 +410,14 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
     let mut choice = String::new();
 
     if io::stdin().read_line(&mut choice).is_err() {
-        eprintln!("\nFailed to read input");
+        eprintln!("\nError: Failed to read input");
         return;
     };
 
     let choice: u32 = match choice.trim().parse() {
         Ok(number) => number,
         Err(_) => {
-            eprintln!("\nNot a number");
+            eprintln!("\nError: Not a number");
             return;
         },
     };
@@ -427,7 +427,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
         print!("\nEnter promise {}: ", i+1);
         flush();
         if io::stdin().read_line(&mut input).is_err() {
-            eprintln!("\nFailed to read input");
+            eprintln!("\nError: Failed to read input");
             return;
         };
         let input = input.trim();
@@ -446,13 +446,13 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
     let mut paths: Vec<String> = Vec::new();
 
     if io::stdin().read_line(&mut number_of_paths).is_err() {
-        eprintln!("\nUnable to read input");
+        eprintln!("\nError: Unable to read input");
         return;
     };
     let number_of_paths: u32 = match number_of_paths.trim().parse() {
         Ok(number) => number,
         Err(_) => {
-            eprintln!("\nNot a number");
+            eprintln!("\nError: Not a number");
             return;
         },
     };
@@ -466,7 +466,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
         flush();
         let mut input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
-            eprintln!("\nUnable to read input");
+            eprintln!("\nError: Unable to read input");
             return;
         };
         match input.trim() {
@@ -476,7 +476,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
                 flush();
                 let mut input: String = String::new();
                 if io::stdin().read_line(&mut input).is_err() {
-                    eprintln!("\nUnable to read input");
+                    eprintln!("\nError: Unable to read input");
                     return;
                 };
                 let mut path = String::from(" -v ");
@@ -489,7 +489,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
                 flush();
                 let mut input = String::new();
                 if io::stdin().read_line(&mut input).is_err() {
-                    eprintln!("\nUnable to read input");
+                    eprintln!("\nError: Unable to read input");
                     return;
                 };
                 let path = input.trim();
@@ -497,7 +497,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
                 flush();
                 let mut input = String::new();
                 if io::stdin().read_line(&mut input).is_err() {
-                    eprintln!("\nUnable to read input");
+                    eprintln!("\nError: Unable to read input");
                     return;
                 };
                 let perm = &input.trim()[0..];
@@ -508,7 +508,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
                 paths.push(unveil_argument);
             },
             _ => {
-                eprintln!("\nInvalid input");
+                eprintln!("\nError: Invalid input");
                 return;
             },
         };
@@ -546,7 +546,7 @@ pub fn pledge(application_name: &String, application_args: &Vec<String>) {
     let mut input = String::new();
 
     if io::stdin().read_line(&mut input).is_err() {
-        eprintln!("\nFailed to read input");
+        eprintln!("\nError: Failed to read input");
         return;
     };
 
@@ -577,7 +577,7 @@ pub fn get_syscall_list(application_name: &String, application_args: &Vec<String
     let mut writer = match File::create(filename) {
         Ok(writer) => writer,
         Err(_) => {
-            eprintln!("\nUnable to create file");
+            eprintln!("\nError: Unable to create file");
             return Vec::new();
         },
     };
@@ -588,21 +588,21 @@ pub fn get_syscall_list(application_name: &String, application_args: &Vec<String
         .output() {
             Ok(output) => output,
             Err(_) => {
-                eprintln!("\nCommand failed to execute");
+                eprintln!("\nError: Command failed to execute");
                 return Vec::new();
             },
         };
 
     // Write the JSON output to output.json
     if writer.write_all(String::from_utf8_lossy(&output.stdout).as_bytes()).is_err() {
-        eprintln!("\nUnable to write to file");
+        eprintln!("\nError: Unable to write to file");
         return Vec::new();
     };
 
     let json = match File::open("output.json") {
         Ok(json) => json,
         Err(_) => {
-            eprintln!("\nUnable to parse JSON");
+            eprintln!("\nError: Unable to parse JSON");
             return Vec::new();
         },
     };
@@ -615,7 +615,7 @@ pub fn get_syscall_list(application_name: &String, application_args: &Vec<String
         let syscall = match syscall {
             Ok(syscall) => syscall,
             Err(_) => {
-                eprintln!("\nFailed to deserialize JSON");
+                eprintln!("\nError: Failed to deserialize JSON");
                 return Vec::new();
             },
         };
@@ -666,7 +666,7 @@ pub fn main() {
         .output() {
             Ok(home_dir) => home_dir,
             Err(_) => {
-                eprintln!("\nFailed to retrieve path to home directory");
+                eprintln!("\nError: Failed to retrieve path to home directory");
                 return;
             },
         };
@@ -675,7 +675,7 @@ pub fn main() {
     let target_dir = match str::from_utf8(&output.stdout) {
         Ok(home_dir) => home_dir,
         Err(_) => {
-            eprintln!("\nGot non UTF-8 data");
+            eprintln!("\nError: Got non UTF-8 data");
             return;
         },
     };
@@ -687,9 +687,9 @@ pub fn main() {
 
     // Check if $HOME/.cargo/bin/lurk or /bin/lurk exists
     if std::fs::metadata(target_dir).is_err() {
-        eprintln!("\ncargo-installed lurk-cli binary not found. Checking to see if it has been installed using the system's package manager...");
+        eprintln!("\nError: cargo-installed lurk-cli binary not found. Checking to see if it has been installed using the system's package manager...");
         if std::fs::metadata("/bin/lurk").is_err() {
-            eprintln!("\nlurk not found. Please install using cargo (\"cargo install lurk-cli\") or your system's package manager.");
+            eprintln!("\nError: lurk not found. Please install using cargo (\"cargo install lurk-cli\") or your system's package manager.");
             return;
         };
     };
@@ -703,7 +703,7 @@ pub fn main() {
         .output() {
             Ok(value) => value,
             Err(_) => {
-                eprintln!("\nFailed to check if BPF JIT compiler is enabled");
+                eprintln!("\nError: Failed to check if BPF JIT compiler is enabled");
                 return;
             },
         };
@@ -711,16 +711,11 @@ pub fn main() {
     let bpf_jit_val = match str::from_utf8(&output.stdout) {
         Ok(home_dir) => home_dir,
         Err(_) => {
-            eprintln!("\nGot non UTF-8 data");
+            eprintln!("\nError: Got non UTF-8 data");
             return;
         },
     };
 
-    // If the value is not equal to 1, that implies the BPF JIT compiler is disabled
-    if bpf_jit_val.trim() != "1" {
-        eprintln!("\nThe BPF JIT compiler is disabled. It is recommended to enable it to minimize syscall overhead");
-        return;
-    };
 
     match OS {
         "linux" => {
@@ -728,7 +723,12 @@ pub fn main() {
             let mut input = String::new();
             flush();
             if io::stdin().read_line(&mut input).is_err() {
-                eprintln!("\nUnable to read input");
+                eprintln!("\nError: Unable to read input");
+                return;
+            };
+            // If the value is not equal to 1, that implies the BPF JIT compiler is disabled
+            if bpf_jit_val.trim() != "1" {
+                eprintln!("\nThe BPF JIT compiler is disabled. It is recommended to enable it to minimize syscall overhead.");
                 return;
             };
             match input.trim() {
