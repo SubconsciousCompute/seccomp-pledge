@@ -1,7 +1,7 @@
 # seccomp-pledge
 
 ## Introduction
-In a nutshell, `seccomp-pledge` is a systems hardening tool that marries `seccomp-BPF` to `pledge` and `unveil`. 
+In a nutshell, `seccomp-pledge` is a systems hardening tool that marries `seccomp-bpf` to `pledge` and `unveil`. 
 
 For reference, `seccomp-bpf` is a feature in the Linux kernel that allows specifying filters for system calls spawned by processes in the form of Berkeley Packet Filter (BPF) programs. A configurable set of policies (Allow, Errno, Trap, etc.) determines the kind of filtering that will be applied to system calls intercepted by `seccomp`. This minimizes the attack surface of the kernel that is exposed to userland applications.
 
@@ -12,13 +12,13 @@ For reference, `seccomp-bpf` is a feature in the Linux kernel that allows specif
 This tool upholds the principle of least privilege (PoLP) and limits processes to exactly what they are designed for, disallowng any non-essential operations as desired. It will cause core dumps if the user blocks a syscall that is fundamental to the execution of the process, which implies that the `seccomp` filters need to be constructed with care and `pledge` promises must be chosen appropriately. 
 
 ## Supported platforms
-Since `seccomp` is Linux-specific, syscall filtering using this feature is supported only on Linux systems. Non-Linux systems will have to proceed without `seccomp-BPF` filters. 
+Since `seccomp` is Linux-specific, syscall filtering using this feature is supported only on Linux systems. Non-Linux systems will have to proceed without `seccomp-bpf` filters. 
 
 ## Features
 
 - Accept the process to be executed (with optional flags) as an argument
 - Display the list of syscalls (name and arguments) spawned by the process using `lurk`
-- Use `seccompiler` as a high-level interface for defining seccomp-BPF filters
+- Use `seccompiler` as a high-level interface for defining `seccomp-bpf` filters
 - Serialize the syscall list and filter list into JSON objects using `serde` for later reference
 - Install user-defined filters as BPF programs for current and child processes
 - Fetch Justine Tunney's Linux port of `pledge` and wrap around command invocations with user-specified flags
@@ -27,8 +27,8 @@ Since `seccomp` is Linux-specific, syscall filtering using this feature is suppo
 ## Dependencies
 
 `seccomp-pledge` has the following dependencies:
-- [seccompiler](https://github.com/rust-vmm/seccompiler) - Provides easy-to-use Linux seccomp-bpf jailing
-- [lurk](https://github.com/JakWai01/lurk) - A pretty (simple) alternative to strace
+- [seccompiler](https://github.com/rust-vmm/seccompiler) - Provides easy-to-use Linux `seccomp-bpf` jailing
+- [lurk](https://github.com/JakWai01/lurk) - A pretty (simple) alternative to `strace`
 - [pledge](https://justine.lol/pledge) - Linux port of OpenBSD's `pledge(2)`
 - [serde](https://serde.rs) - Framework for (de)serializing data structures in Rust
 - [wget](https://www.gnu.org/software/wget/) - Retrieve files from the web using HTTP(S)
