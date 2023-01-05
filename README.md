@@ -39,7 +39,8 @@ To run `seccomp-pledge`, ensure `cargo` is installed on your system. Follow thes
 ```sh
 git clone https://github.com/DeviousCilantro/seccomp-pledge.git
 cd seccomp-pledge
-cargo run --release
+cargo build --release
+./target/release/seccomp-pledge <command> <optional flags or arguments>
 ```
 
 ## License
