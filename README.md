@@ -19,6 +19,7 @@ Since `seccomp` is Linux-specific, syscall filtering using this feature is suppo
 - Accept the process to be executed (with optional flags) as an argument
 - Display the list of syscalls (name and arguments) spawned by the process using `lurk`
 - Use `seccompiler` as a high-level interface for defining seccomp-BPF filters
+- Serialize the syscall list and filter list into JSON objects using `serde` for later reference
 - Install user-defined filters as BPF programs for current and child processes
 - Fetch Justine Tunney's Linux port of `pledge` and wrap around command invocations with user-specified flags
 - Provide intuitive prompts to simplify the process of constructing `seccomp` filters and selecting `pledge` promises and `unveil` path permissions
