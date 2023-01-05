@@ -7,7 +7,7 @@ For reference, `seccomp-bpf` is a feature in the Linux kernel that allows specif
 
 `pledge` is a sandboxing mechanism in OpenBSD that restricts the operational capabilities of processes by defining a set of promises that determine the system calls which will be made unavailable to the respective process. It has been ported to Linux as a standalone binary by Justine Tunney. Find more information [here](https://justine.lol/pledge).
 
-`unveil` is another sandboxing mechanism in OpenBSD that is used to provide path permissions to processes. By default, a `pledge` sandbox will restrict access to the entire filesystem for some process. It is possible to allow access to some filesystem path using `unveil` for processes that necessarily require it. The type of permissions granted (read-only, read-write, etc.) can also be specified.
+`unveil` is another sandboxing mechanism in OpenBSD that is used to provide path permissions to processes. By default, a `pledge` sandbox will restrict access to the entire filesystem for some process. It is possible to allow access to some filesystem path using `unveil` for processes that necessarily require it. The type of permissions granted (read-only, read-write, etc.) can also be specified. Justine Tunney's `pledge` port incorporates support for `unveil`.
 
 This tool upholds the principle of least privilege (PoLP) and limits processes to exactly what they are designed for, disallowng any non-essential operations as desired. It will cause core dumps if the user blocks a syscall that is fundamental to the execution of the process, which implies that the `seccomp` filters need to be constructed with care and `pledge` promises must be chosen appropriately. 
 
