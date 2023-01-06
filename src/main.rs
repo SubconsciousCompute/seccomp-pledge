@@ -70,7 +70,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         },
     };
 
-    print!("\nHere is a list of args-attached syscalls spawned by the process:\n");
+    print!("\nHere is a list of syscalls (with name and arguments) spawned by the process:\n");
 
     flush();
 
@@ -78,8 +78,12 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
     let syscall_list: Vec<LurkList> = get_syscall_list(application_name, application_args);
     let mut filtered_syscall_list: Vec<SyscallList> = Vec::new();
 
+    // Display the list of syscalls (name and arguments) spawned by process
     for syscall in syscall_list {
-        println!("syscall: {}, args: {:?}", &syscall.syscall, &syscall.args);
+        println!("\nsyscall: {}", syscall.syscall);
+        for (index, argument) in syscall.args.iter().enumerate() {
+            println!("argument {}: {}", &index, &argument);
+        }
     }
 
     for i in 0..number_of_filters {
@@ -715,7 +719,7 @@ pub fn main() {
         },
     };
 
-
+    // Pattern-matching the OS type
     match OS {
         "linux" => {
             print!("\nYou are running a Linux system. Seccomp-bpf is supported. Do you want to proceed with seccomp filtering? [Y/n] ");
