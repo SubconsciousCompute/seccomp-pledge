@@ -11,6 +11,9 @@ For reference, `seccomp-bpf` is a feature in the Linux kernel that allows specif
 
 This tool upholds the principle of least privilege (PoLP) and limits processes to exactly what they are designed for, disallowng any non-essential operations as desired. It will cause core dumps if the user blocks a syscall that is fundamental to the execution of the process, which implies that the `seccomp` filters need to be constructed with care and `pledge` promises must be chosen appropriately. 
 
+## Illustration
+![seccomp-pledge output](./output.gif)
+
 ## Supported platforms
 Since `seccomp` is Linux-specific, syscall filtering using this feature is supported only on Linux systems. Non-Linux systems will have to proceed without `seccomp-bpf` filters. 
 
