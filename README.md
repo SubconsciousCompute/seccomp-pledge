@@ -11,6 +11,8 @@ For reference, `seccomp-bpf` is a feature in the Linux kernel that allows specif
 
 This tool upholds the principle of least privilege (PoLP) and limits processes to exactly what they are designed for, disallowng any non-essential operations as desired. It will cause core dumps if the user blocks a syscall that is fundamental to the execution of the process, which implies that the `seccomp` filters need to be constructed with care and `pledge` promises must be chosen appropriately. 
 
+A detailed list of syscalls with an explanation of the parameters can be found [here](https://linuxhint.com/list_of_linux_syscalls/).
+
 ## Demonstration
 This is a demonstration of `seccomp-pledge` with `ls` passed as argument. A `seccomp` filter is constructed that traps all instances of the `accept4` syscall and allows every other syscall. The `pledge` promises selected are `stdio`, `rpath`, and `tty`. The current working directory is unveiled to `ls` with read-only permissions since it needs read access to the present path to print its contents but does not need to write to the path.
 
@@ -50,4 +52,4 @@ cargo build --release
 ```
 
 ## License
-This software uses the MIT license.
+This project uses the MIT license.
