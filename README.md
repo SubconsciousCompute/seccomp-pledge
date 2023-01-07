@@ -14,7 +14,7 @@ This tool upholds the principle of least privilege (PoLP) and limits processes t
 A detailed list of syscalls with an explanation of the parameters can be found [here](https://linuxhint.com/list_of_linux_syscalls/).
 
 ## Demonstration
-This is a demonstration of `seccomp-pledge` with `ls` passed as argument. A `seccomp` filter is constructed that traps all instances of the `accept4` syscall and allows every other syscall. The `pledge` promises selected are `stdio`, `rpath`, and `tty`. The current working directory is unveiled to `ls` with read-only permissions since it needs read access to the present path to print its contents but does not need to write to the path.
+This is a demonstration of `seccomp-pledge` with `ls` passed as argument. A `seccomp` filter is constructed that traps all instances of the `accept4` syscall and allows every other syscall. The `pledge` promises selected are `stdio`, `rpath`, and `tty`, which disallows all syscalls except those associated with these promises. The current working directory is unveiled to `ls` with read-only permissions since it does not need to write to the path to print its contents.
 
 ![seccomp-pledge output](./output.gif)
 
