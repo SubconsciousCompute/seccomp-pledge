@@ -44,6 +44,7 @@ systems will have to proceed without `seccomp-bpf` filters.
 ## Features
 
 - Accept the process to be executed (with optional flags) as an argument
+- Perform optional dependency checking
 - Display the list of syscalls (name and arguments) spawned by the process using `lurk`
 - Use `seccompiler` as a high-level interface for defining `seccomp-bpf` filters
 - Serialize the syscall list and filter list into JSON objects using `serde` for later reference
@@ -51,6 +52,7 @@ systems will have to proceed without `seccomp-bpf` filters.
 - Fetch Justine Tunney's Linux port of `pledge` and wrap around command invocations with user-specified flags
 - Provide intuitive prompts to simplify the process of constructing `seccomp` filters and selecting `pledge` promises
   and `unveil` path permissions
+- Support running non-interactively by directly supplying all necessary arguments during execution
 
 ## Dependencies
 
