@@ -74,7 +74,3 @@ cd seccomp-pledge
 cargo build --release
 ./target/release/seccomp-pledge <command> <optional flags or arguments>
 ```
-
-## License
-
-This project uses the MIT license.
