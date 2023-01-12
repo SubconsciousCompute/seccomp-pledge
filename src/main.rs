@@ -7,7 +7,7 @@ use std::fs::metadata;
 use std::fs::File;
 use std::io;
 use std::io::Write;
-use std::process::Command;
+use std::process::{Command,exit};
 use std::str;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -59,14 +59,14 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
 
     if io::stdin().read_line(&mut number_of_filters).is_err() {
         eprintln!("\nError: Failed to read input");
-        return;
+        exit(1);
     };
 
     let number_of_filters: u32 = if let Ok(number) = number_of_filters.trim().parse() {
         number
     } else {
         eprintln!("\nError: Not a number");
-        return;
+        exit(1);
     };
 
     print!("\nHere is a list of syscalls (with name and arguments) spawned by the process:\n");
@@ -92,7 +92,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         let mut input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Unable to read input");
-            return;
+            exit(1);
         };
         filter_name = input.chars().filter(|c| !c.is_whitespace()).collect();
         print!("\nArguments distinguish between syscalls of the same name. How many syscalls will be passed to the seccomp filter? ");
@@ -100,13 +100,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Unable to read input");
-            return;
+            exit(1);
         };
         let count = if let Ok(number) = input.trim().parse() {
             number
         } else {
             eprintln!("\nError: Not a number");
-            return;
+            exit(1);
         };
         println!("\nYou can choose to construct a universal rule for the syscall that will be applied regardless of arguments.");
         println!("You can also choose to pattern-match specific arguments of the syscall.");
@@ -118,7 +118,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
             flush();
             if io::stdin().read_line(&mut input).is_err() {
                 eprintln!("\nError: Unable to read input");
-                return;
+                exit(1);
             };
             match input.trim() {
                 // Universal rule for some syscall
@@ -129,7 +129,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     flush();
                     if io::stdin().read_line(&mut input).is_err() {
                         eprintln!("\nError: Unable to read input");
-                        return;
+                        exit(1);
                     };
                     let syscall: String = input.chars().filter(|c| !c.is_whitespace()).collect();
                     filtered_syscall_list.push(SyscallList {
@@ -145,7 +145,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     flush();
                     if io::stdin().read_line(&mut input).is_err() {
                         eprintln!("\nError: Unable to read input");
-                        return;
+                        exit(1);
                     };
                     let syscall: String = input.chars().filter(|c| !c.is_whitespace()).collect();
                     input = String::new();
@@ -153,13 +153,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                     flush();
                     if io::stdin().read_line(&mut input).is_err() {
                         eprintln!("\nError: Unable to read input");
-                        return;
+                        exit(1);
                     };
                     let number_of_args = if let Ok(number) = input.trim().parse() {
                         number
                     } else {
                         eprintln!("\nError: Not a number");
-                        return;
+                        exit(1);
                     };
                     for j in 0..number_of_args {
                         let mut input = String::new();
@@ -168,13 +168,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
                             eprintln!("\nError: Unable to read input");
-                            return;
+                            exit(1);
                         };
                         let index = if let Ok(number) = input.trim().parse() {
                             number
                         } else {
                             eprintln!("\nError: Not a number");
-                            return;
+                            exit(1);
                         };
                         input = String::new();
                         // Provide a list of possible values for the comparison operator
@@ -182,7 +182,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
                             eprintln!("\nError: Unable to read input");
-                            return;
+                            exit(1);
                         };
                         let op: String = input.chars().filter(|c| !c.is_whitespace()).collect();
                         input = String::new();
@@ -191,7 +191,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
                             eprintln!("\nError: Unable to read input");
-                            return;
+                            exit(1);
                         };
                         let r#type: String = input.chars().filter(|c| !c.is_whitespace()).collect();
                         input = String::new();
@@ -199,13 +199,13 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
                             eprintln!("\nError: Unable to read input");
-                            return;
+                            exit(1);
                         };
                         let val = if let Ok(number) = input.trim().parse() {
                             number
                         } else {
                             eprintln!("\nError: Not a number");
-                            return;
+                            exit(1);
                         };
                         input = String::new();
                         // Providing comments is made optional by seccompiler since it is primarily
@@ -214,7 +214,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                         flush();
                         if io::stdin().read_line(&mut input).is_err() {
                             eprintln!("\nError: Unable to read input");
-                            return;
+                            exit(1);
                         };
                         match input.trim() {
                             // Provide comments for syscall args
@@ -224,7 +224,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                                 flush();
                                 if io::stdin().read_line(&mut input).is_err() {
                                     eprintln!("\nError: Unable to read input");
-                                    return;
+                                    exit(1);
                                 };
                                 let comment =
                                     input.chars().filter(|c| !c.is_whitespace()).collect();
@@ -241,7 +241,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                             "n" | "N" | "" => (),
                             _ => {
                                 eprintln!("Error: Invalid input");
-                                return;
+                                exit(1);
                             }
                         };
                         // Push to the vector of arguments an instance of the ArgsList struct with user-defined values
@@ -264,7 +264,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
                 }
                 _ => {
                     eprintln!("\nError: Invalid input");
-                    return;
+                    exit(1);
                 }
             };
         }
@@ -274,14 +274,14 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Unable to read input");
-            return;
+            exit(1);
         };
         match_action = input.chars().filter(|c| !c.is_whitespace()).collect();
         match match_action.trim() {
             "allow" | "errno" | "kill_thread" | "kill_process" | "log" | "trace" | "trap" => (),
             _ => {
                 eprintln!("\nError: Invalid input");
-                return;
+                exit(1);
             }
         };
         // Provide a list of possible values for the mismatch_action variable
@@ -290,14 +290,14 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Unable to read input");
-            return;
+            exit(1);
         };
         mismatch_action = input.chars().filter(|c| !c.is_whitespace()).collect();
         match mismatch_action.trim() {
             "allow" | "errno" | "kill_thread" | "kill_process" | "log" | "trace" | "trap" => (),
             _ => {
                 eprintln!("\nError: Invalid input");
-                return;
+                exit(1);
             }
         };
         // Insert a user-defined key-value pair in the filters hash table
@@ -318,7 +318,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         file
     } else {
         eprintln!("\nError: Unable to create file");
-        return;
+        exit(1);
     };
 
     // Serialize the filters hash table into JSON using serde and write to filters.json
@@ -329,14 +329,14 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
             Ok(json) => json,
             Err(_) => {
                 eprintln!("\nError: Unable to serialize to JSON");
-                return;
+                exit(1);
             }
     }
     )
         .is_err()
     {
         eprintln!("\nError: Unable to write to file");
-        return;
+        exit(1);
     };
 
     // Read the contents of filters.json as this is required by seccompiler
@@ -344,7 +344,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         json
     } else {
         eprintln!("\nError: Unable to read file");
-        return;
+        exit(1);
     };
 
     println!("\nJSON-formatted seccompiler filter:\n{json_input}");
@@ -355,7 +355,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         seccompiler::TargetArch::x86_64,
     ) { filtermap } else {
         eprintln!("\nError: Unable to compile filter into loadable BPF");
-        return;
+        exit(1);
     };
 
     // Read the BPF program equivalent of the seccomp filter
@@ -363,7 +363,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
         filter
     } else {
         eprintln!("\nError: Unable to read BPF");
-        return;
+        exit(1);
     };
 
     println!("\nApplying seccomp-bpf filter...");
@@ -375,40 +375,44 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>) {
 }
 
 // Pledge/unveil sandboxing
-pub fn pledge(application_name: &str, application_args: &Vec<String>, non_interactive_arg: &String) {
+pub fn pledge(application_name: &str, application_args: &Vec<String>, non_interactive_arg: &String, pledge_source: &str) {
 
     let mut promises: Vec<String> = Vec::new();
 
     // Fetch the pledge binary from the given URL using wget and make it executable using chmod
-    // if pledge binary is not already present in current path
-    if metadata("./pledge").is_err() {
-        println!(
-            "\nFetching Justine Tunney's Linux port of OpenBSD's pledge...\n"
-        );
-        if Command::new("/bin/bash")
-            .arg("-c")
-            .arg("wget -q -O ./pledge https://justine.lol/pledge/pledge.com")
-            .output()
-            .is_err() {
-                eprintln!("\nError: Failed to fetch pledge binary");
-                return;
-            };
+    // if user has not specified --local flag
+    match pledge_source {
+        "remote" => {
+            println!(
+                "\nFetching Justine Tunney's Linux port of OpenBSD's pledge from upstream...\n"
+            );
+            if Command::new("/bin/bash")
+                .arg("-c")
+                .arg("wget -q -O ./pledge https://justine.lol/pledge/pledge.com")
+                .output()
+                .is_err() {
+                    eprintln!("\nError: Failed to fetch pledge binary");
+                    exit(1);
+                };
 
-        println!(
-            "\nMaking the pledge binary executable...\n"
-        );
+            println!(
+                "\nMaking the pledge binary executable..."
+            );
 
-        if Command::new("/bin/bash")
-            .arg("-c")
-            .arg("chmod +x ./pledge")
-            .output()
-            .is_err() {
-                eprintln!("\nError: Failed to make the pledge binary executable");
-                return;
-            };
-    } else {
-        println!("\nPledge binary found at current path...\n");
-    }
+            if Command::new("/bin/bash")
+                .arg("-c")
+                .arg("chmod +x ./pledge")
+                .output()
+                .is_err() {
+                    eprintln!("\nError: Failed to make the pledge binary executable");
+                    exit(1);
+                };
+        },
+        "local" => {
+            println!("\nUsing local pledge binary...\n");
+        }
+        _ => {}
+    };
 
     if !non_interactive_arg.is_empty() {
         let mut command = String::from("./pledge ");
@@ -422,33 +426,35 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
                 output
             } else {
                 eprintln!("Error: Failed to execute process with sandboxing measures");
-                return;
+                exit(1);
             };
 
         let stdout = if let Ok(stdout) = String::from_utf8(output.clone().stdout) {
             stdout
         } else {
             eprintln!("Failed to extract stdout");
-            return;
+            exit(1);
         };
 
         let stderr = if let Ok(stderr) = String::from_utf8(output.stderr) {
             stderr
         } else {
             eprintln!("Failed to extract stderr");
-            return;
+            exit(1);
         };
 
         if stderr.contains("denied") {
             eprintln!("\nError: Insufficient path permissions. Check unveil privileges.");
-            return;
+            exit(1);
         }
 
         if stderr.contains("ioctl") ||
             (stderr.as_str() == "" && stdout.as_str() == "") {
             eprintln!("\nError: Insufficient syscall permissions. Check pledge privileges.");
-            return;
+            exit(1);
         }
+
+        println!("\n");
 
         if Command::new("/bin/bash")
             .arg("-c")
@@ -456,7 +462,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
             .spawn()
             .is_err() {
                 eprintln!("\nError: Failed to execute process with sandboxing measures");
-                return;
+                exit(1);
         }
         return;
     }
@@ -477,14 +483,14 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
 
     if io::stdin().read_line(&mut choice).is_err() {
         eprintln!("\nError: Failed to read input");
-        return;
+        exit(1);
     };
 
     let choice: u32 = if let Ok(number) = choice.trim().parse() {
         number
     } else {
         eprintln!("\nError: Not a number");
-        return;
+        exit(1);
     };
 
     for i in 0..choice {
@@ -493,7 +499,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
         flush();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Failed to read input");
-            return;
+            exit(1);
         };
         let input = input.trim();
         promises.push(input.to_string());
@@ -511,13 +517,13 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
 
     if io::stdin().read_line(&mut number_of_paths).is_err() {
         eprintln!("\nError: Unable to read input");
-        return;
+        exit(1);
     };
     let number_of_paths: u32 = if let Ok(number) = number_of_paths.trim().parse() {
         number
     } else {
         eprintln!("\nError: Not a number");
-        return;
+        exit(1);
     };
 
     println!(
@@ -534,7 +540,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
         let mut input = String::new();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Unable to read input");
-            return;
+            exit(1);
         };
         match input.trim() {
             "y" | "Y" | "" => {
@@ -544,7 +550,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
                 let mut input: String = String::new();
                 if io::stdin().read_line(&mut input).is_err() {
                     eprintln!("\nError: Unable to read input");
-                    return;
+                    exit(1);
                 };
                 let mut path = String::from(" -v ");
                 path.push_str(input.trim());
@@ -557,7 +563,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
                 let mut input = String::new();
                 if io::stdin().read_line(&mut input).is_err() {
                     eprintln!("\nError: Unable to read input");
-                    return;
+                    exit(1);
                 };
                 let path = input.trim();
                 print!(
@@ -568,7 +574,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
                 let mut input = String::new();
                 if io::stdin().read_line(&mut input).is_err() {
                     eprintln!("\nError: Unable to read input");
-                    return;
+                    exit(1);
                 };
                 let perm = &input.trim()[0..];
                 let mut unveil_argument = String::from(" -v ");
@@ -579,7 +585,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
             }
             _ => {
                 eprintln!("\nError: Invalid input");
-                return;
+                exit(1);
             }
         };
     }
@@ -617,7 +623,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
 
     if io::stdin().read_line(&mut input).is_err() {
         eprintln!("\nError: Failed to read input");
-        return;
+        exit(1);
     };
 
     match input.trim() {
@@ -637,7 +643,7 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
             };
         }
         _ => {
-            println!("\nAborting...");
+            println!("\nexiting...");
         }
     };
 }
@@ -706,31 +712,51 @@ pub fn flush() {
     };
 }
 
-pub fn check_arg() {
+pub fn check_args() {
     if let Some(argument) = env::args().nth(1) {
         match argument.as_str() {
-            "--check" | "-check" => {
-                check();
+            "--check" => {
+                check_deps();
             },
-            "--no_check" | "-no_check" | "-no-check" | "--no-check" => {
+            "--no-check" => {
                 println!("\nSkipping dependency checking...");
             },
             _ => {
                 eprintln!("Error: Dependency checking argument not provided");
+                exit(1);
             }
         };
     } else {
         eprintln!("Error: Insufficient number of arguments supplied");
+        exit(1);
     }
 }
 
-pub fn check() {
+#[must_use] pub fn check_pledge() -> String {
+    if let Some(argument) = env::args().nth(2) {
+        match argument.as_str() {
+            "--local" => {
+                return String::from("local");
+            },
+            "--remote" => {
+                return String::from("remote");
+            },
+            _ => {
+                eprintln!("Error: Pledge binary source argument not provided");
+                exit(1);
+            }
+        };
+    };
+    String::from("error")
+}
+
+pub fn check_deps() {
     println!("This code has wget and lurk as its dependencies. Checking to ensure the binaries are installed before proceeding...");
 
     // Check if /bin/wget exists
-    if std::fs::metadata("/bin/wget").is_err() {
+    if metadata("/bin/wget").is_err() {
         eprintln!("\nError: wget not found. Please install using your system's package manager.");
-        return;
+        exit(1);
     };
 
     // Retrieve path to user's home directory
@@ -739,7 +765,7 @@ pub fn check() {
         .arg("echo $HOME")
         .output() { home_dir } else {
             eprintln!("\nError: Failed to retrieve path to home directory");
-            return;
+            exit(1);
         };
 
     // Convert the Vec<u8> output to str
@@ -747,7 +773,7 @@ pub fn check() {
         home_dir
     } else {
         eprintln!("\nError: Got non UTF-8 data");
-        return;
+        exit(1);
     };
 
     let mut target_dir = target_dir.trim().to_string();
@@ -760,7 +786,7 @@ pub fn check() {
         eprintln!("\nError: cargo-installed lurk-cli binary not found. Checking to see if it has been installed using the system's package manager...");
         if std::fs::metadata("/bin/lurk").is_err() {
             eprintln!("\nError: lurk not found. Please install using cargo (\"cargo install lurk-cli\") or your system's package manager.");
-            return;
+            exit(1);
         };
     };
 
@@ -772,14 +798,14 @@ pub fn check() {
         .arg("cat /proc/sys/net/core/bpf_jit_enable")
         .output() { value } else {
             eprintln!("\nError: Failed to check if BPF JIT compiler is enabled");
-            return;
+            exit(1);
         };
 
     let bpf_jit_val = if let Ok(home_dir) = str::from_utf8(&output.stdout) {
         home_dir
     } else {
         eprintln!("\nError: Got non UTF-8 data");
-        return;
+        exit(1);
     };
 
     // If the value is not equal to 1, that implies the BPF JIT compiler is disabled
@@ -793,20 +819,20 @@ pub fn main() {
     let mut application_name: String = String::new();
     let mut application_args: Vec<String> = Vec::new();
     let mut non_interactive_arg: String = String::new();
+    let pledge_source: String = check_pledge();
 
     // Check if the user intends to run the program in non-interactive mode
-    if let Some(argument) = env::args().nth(2) { match argument.as_str() {
+    if let Some(argument) = env::args().nth(3) { match argument.as_str() {
         "-v" | "-p" => {
             println!("Entering non-interactive mode...");
             println!("\nSkipping seccomp-bpf filtering...");
-            check_arg();
             let mut promises_index = 0;
             // Quotes are stripped off while passing arguments
             // This workaround prefixes each promise
             // with the promise flag instead
             // and adds spaces wherever necessary
             for (index, argument) in env::args().enumerate() {
-                if index < 2 { continue; }
+                if index < 3 { continue; }
                 non_interactive_arg.push_str(argument.clone().as_str());
                 if index == promises_index {
                     non_interactive_arg.push_str("\" ");
@@ -818,13 +844,13 @@ pub fn main() {
                     non_interactive_arg.push('\"');
                 }
             }
-            pledge("", &Vec::new(), &non_interactive_arg);
+            pledge("", &Vec::new(), &non_interactive_arg, &pledge_source);
             return;
         },
             _ => {
                 // Retrieve the arguments passed to the process, if any
                 for (index, argument) in env::args().enumerate() {
-                    if index < 2 { continue; }
+                    if index < 3 { continue; }
                     if index == 2 {
                         application_name = argument.clone();
                         continue;
@@ -835,7 +861,7 @@ pub fn main() {
     }};
 
     // Run in interactive mode
-    check_arg();
+    check_args();
 
     // Pattern-matching the OS type
     if OS == "linux" {
@@ -844,17 +870,17 @@ pub fn main() {
         flush();
         if io::stdin().read_line(&mut input).is_err() {
             eprintln!("\nError: Unable to read input");
-            return;
+            exit(1);
         };
         match input.trim() {
             "y" | "Y" | "" => {
                 println!("\nProceeding with seccomp filtering...");
                 seccomp(&application_name, &application_args);
-                pledge(&application_name, &application_args, &String::new());
+                pledge(&application_name, &application_args, &String::new(), &pledge_source);
             }
             "n" | "N" => {
                 println!("\nProceeding without seccomp filtering...");
-                pledge(&application_name, &application_args, &String::new());
+                pledge(&application_name, &application_args, &String::new(), &pledge_source);
             }
             _ => {
                 eprintln!("\nError: Invalid input");
@@ -863,7 +889,7 @@ pub fn main() {
     } else {
         println!("\nYou are running a non-Linux system. Seccomp-bpf is unsupported. Proceeding without seccomp filtering...");
         println!("Application name: {}, application args:{:?}", &application_name, &application_args);
-        pledge(&application_name, &application_args, &String::new());
+        pledge(&application_name, &application_args, &String::new(), &pledge_source);
     }
 
 }
