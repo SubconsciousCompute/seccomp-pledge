@@ -898,7 +898,11 @@ pub fn check_deps() {
 fn read(stream: &UnixStream) -> String {
     let mut reader = BufReader::new(stream);
     let mut response = String::new();
-    reader.read_line(&mut response).unwrap();
+    // Read from the socket APi client
+    if reader.read_line(&mut response).is_err() {
+        eprintln!("\nError: Failed to read input from client");
+        exit(1);
+    }
     let response = response.trim().to_string();
     response
 
@@ -912,6 +916,7 @@ fn write(stream: &UnixStream, text: &str) {
             eprintln!("Cannot copy stream");
             exit(1);
     };
+    // Write to the socket API client 
     if unix_stream.write(text.as_bytes()).is_err() {
         eprintln!("\nUnable to write to stream");
         exit(1);
@@ -988,23 +993,35 @@ pub fn main() {
     // Run in interactive mode
     check_args();
 
-    if check_api() {
-        if std::fs::metadata(socket_path).is_ok() {
-            println!("\nA socket is already present at {}. Deleting...", &socket_path);
-            if std::fs::remove_file(socket_path).is_err() {
-                eprintln!("\nError: Unable to remove previous socket at {:?}", &socket_path);
+    // Pattern-matching OS
+    if OS == "linux" {
+        println!("\nYou are running a Linux system. Seccomp-bpf is supported. Proceeding with seccomp filtering...");
+        // Checking if user intends to use the Unix socket API
+        if check_api() {
+            if std::fs::metadata(socket_path).is_ok() {
+                println!("\nA socket is already present at {}. Deleting...", &socket_path);
+                if std::fs::remove_file(socket_path).is_err() {
+                    eprintln!("\nError: Unable to remove previous socket at {:?}", &socket_path);
+                    exit(1);
+                };
+            }
+            println!("\nCreating new socket...");
+            listener = if let Ok(listener) = UnixListener::bind(socket_path) {
+                listener
+            } else {
+                eprintln!("\nError: Failed to bind to socket path");
                 exit(1);
             };
-        }
-        println!("\nCreating new socket...");
-        listener = UnixListener::bind(socket_path).expect("Unable to create socket");
-        if OS == "linux" {
-            println!("\nYou are running a Linux system. Seccomp-bpf is supported. Proceeding with seccomp filtering...");
             if let Ok((socket, _addr)) = listener.accept() {
                 seccomp(&application_name, &application_args, Some(&socket));
                 pledge(&application_name, &application_args, &String::new(), &pledge_source, Some(&socket));
             };
-        };
-
-    } else {}
+        } else {
+            seccomp(&application_name, &application_args, None);
+            pledge(&application_name, &application_args, &String::new(), &pledge_source, None);
+        }
+    } else {
+        println!("\nYou are running a non-Linux system. Seccomp-bpf is unsupported. Skipping seccomp filtering...");
+        pledge(&application_name, &application_args, &String::new(), &pledge_source, None);
+    }
 }
