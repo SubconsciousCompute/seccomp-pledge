@@ -51,7 +51,6 @@ cd seccomp-pledge
 cargo build --release
 ./target/release/seccomp-pledge [FLAGS] [COMMAND]
 ```
-
 ## Usage
 Here is a  quick overview of `seccomp-pledge`:
 ```sh
