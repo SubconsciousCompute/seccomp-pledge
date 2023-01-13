@@ -51,6 +51,7 @@ cd seccomp-pledge
 cargo build --release
 ./target/release/seccomp-pledge [FLAGS] [COMMAND]
 ```
+
 ## Usage
 Here is a  quick overview of `seccomp-pledge`:
 ```sh
@@ -80,8 +81,8 @@ FLAGS:
 ```
 
 When the `-v` and `-p` flags are supplied, `seccomp-pledge` will run in non-interactive mode, assuming all the necessary arguments have been provided during execution. This skips `seccomp` filtering.
-When the `--api` flag is supplied, `seccomp-pledge` will run in API mode, creating a Unix socket at `/tmp/seccomp-pledge.sock` which can then be used for communication using, for instance,  the Linux port of OpenBSD's `netcat` [`nc -U /tmp/seccomp-pledge.sock`].
-Otherwise, it runs in standard interactive mode, guiding the user through the different stages of creating the `seccomp` filtering policy and defining the `pledge` sandbox.
+When the `--api` flag is supplied, `seccomp-pledge` will run in API mode, creating a Unix socket at `/tmp/seccomp-pledge.sock` which can then be used for communication using, for instance,  the Linux port of OpenBSD's `netcat`. After installing `netcat`, the following command can b executed to use the socket: `nc -U /tmp/seccomp-pledge.sock`
+Otherwise, `seccomp-pledge` runs in standard interactive mode, guiding the user through the different stages of creating the `seccomp` filtering policy and defining the `pledge` sandbox.
 
 ## Demonstrations
 
