@@ -718,11 +718,13 @@ pub fn pledge(application_name: &str, application_args: &Vec<String>, non_intera
                     .spawn()
                     .is_err()
             {
-                println!("Failed to execute process with sandboxing measures");
+                eprintln!("Failed to execute process with sandboxing measures");
+                exit(1);
             };
         }
         _ => {
-            println!("\nExiting...");
+            eprintln!("\nExiting...");
+            exit(1);
         }
     };
 }
@@ -792,6 +794,7 @@ pub fn flush() {
 }
 
 pub fn check_args() {
+    // Check dependency checking argument supplied
     if let Some(argument) = env::args().nth(1) {
         match argument.as_str() {
             "--check" => {
@@ -806,12 +809,13 @@ pub fn check_args() {
             }
         };
     } else {
-        eprintln!("Error: Insufficient number of arguments supplied");
+        eprintln!("\nError: Insufficient number of arguments supplied");
         exit(1);
     }
 }
 
 #[must_use] pub fn check_pledge() -> String {
+    // Check pledge binary source argument supplied
     if let Some(argument) = env::args().nth(2) {
         match argument.as_str() {
             "--local" => {
@@ -821,7 +825,7 @@ pub fn check_args() {
                 return String::from("remote");
             },
             _ => {
-                eprintln!("Error: Pledge binary source argument not provided");
+                eprintln!("\nError: Pledge binary source argument not provided");
                 exit(1);
             }
         };
@@ -895,7 +899,7 @@ pub fn check_deps() {
 
 }
 
-fn read(stream: &UnixStream) -> String {
+#[must_use] pub fn read(stream: &UnixStream) -> String {
     let mut reader = BufReader::new(stream);
     let mut response = String::new();
     // Read from the socket APi client
@@ -909,7 +913,7 @@ fn read(stream: &UnixStream) -> String {
 }
 
 
-fn write(stream: &UnixStream, text: &str) {
+pub fn write(stream: &UnixStream, text: &str) {
     let mut unix_stream = if let Ok(stream) = stream.try_clone() {
             stream
         } else {
@@ -1022,6 +1026,7 @@ pub fn main() {
         }
     } else {
         println!("\nYou are running a non-Linux system. Seccomp-bpf is unsupported. Skipping seccomp filtering...");
+        println!("\nSocket API is unavailable. Running in interactive mode...");
         pledge(&application_name, &application_args, &String::new(), &pledge_source, None);
     }
 }

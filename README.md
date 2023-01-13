@@ -26,7 +26,7 @@ Since `seccomp` is Linux-specific, syscall filtering using this feature is suppo
 - Use `seccompiler` as a high-level interface for defining `seccomp-bpf` filters
 - Serialize the syscall list and filter list into JSON objects using `serde` and save at current path for later reference
 - Install user-defined filters as BPF programs for current and child processes
-- Support for running in three modes: interactively as usual, non-interactively by directly supplying all necessary arguments during execution and via a Unix IPC socket as an API layer for communication
+- Support for running in three modes: interactively, non-interactively by directly supplying all necessary arguments during execution and via a Unix IPC socket as an API layer for communication
 - Optionally fetch Justine Tunney's Linux port of `pledge` from upstream or use the local version to wrap around command invocations
 - Provide intuitive prompts to simplify the process of constructing `seccomp` filters and selecting `pledge` promises and `unveil` path permissions
 
@@ -81,26 +81,21 @@ FLAGS:
 ```
 
 When the `-v` and `-p` flags are supplied, `seccomp-pledge` will run in non-interactive mode, assuming all the necessary arguments have been provided during execution. This skips `seccomp` filtering.
-When the `--api` flag is supplied, `seccomp-pledge` will run in API mode, creating a Unix socket at `/tmp/seccomp-pledge.sock` which can then be used for communication using some tool like the Linux port of OpenBSD's `netcat` [`nc -U /tmp/seccomp-pledge.sock`].
+When the `--api` flag is supplied, `seccomp-pledge` will run in API mode, creating a Unix socket at `/tmp/seccomp-pledge.sock` which can then be used for communication using, for instance,  the Linux port of OpenBSD's `netcat` [`nc -U /tmp/seccomp-pledge.sock`].
 Otherwise, it runs in standard interactive mode, guiding the user through the different stages of creating the `seccomp` filtering policy and defining the `pledge` sandbox.
 
 ## Demonstrations
 
-This is a series of demonstrations of `seccomp-pledge` for sandboxing `ls`. 
+This is a series of demonstrations on the three modes of using `seccomp-pledge` for sandboxing, for instance, `ls`. The `pledge` promises supplied are `stdio`, `rpath`, and `tty` and the current directory is unveiled with the default read-only permissions. `seccomp` filtering is disabled for the non-interactive mode.
 
-In this demonstration, `seccomp-pledge` is executed non-interactively by directly supplying all necessary arguments during execution.
+Non-interactive mode:
 
 ![seccomp-pledge non-interactive output](_readme/non-interactive.gif)
 
-This demonstration showcases the runtime error thrown when the unveil path permissions supplied are insufficient or absent for the corresponding process.
-
-![seccomp-pledge unveil-error output](_readme/unveil-error.gif)
-
-This demonstration showcases the runtime error thrown when the pledge promises supplied are insufficient or absent for the corresponding process.
-
-![seccomp-pledge pledge-error output](_readme/pledge-error.gif)
-
-In this demonstration, `seccomp-pledge` is executed interactively by not specifying the `-v` or `-p` flag during execution.
-A `seccomp` filter is constructed that traps all instances of the `accept4` syscall and allows every other syscall. The `pledge` promises selected are `stdio`, `rpath`, and `tty`, which disallows all syscalls except those associated with these promises. The current working directory is unveiled to `ls` with the default read-only permissions since it does not need to write to the path to print its contents.
+Interactive mode:
 
 ![seccomp-pledge interactive output](_readme/interactive.gif)
+
+API mode:
+
+![seccomp-pledge pledge-error output](_readme/api.gif)
