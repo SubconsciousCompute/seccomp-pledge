@@ -26,9 +26,9 @@ Since `seccomp` is Linux-specific, syscall filtering using this feature is suppo
 - Use `seccompiler` as a high-level interface for defining `seccomp-bpf` filters
 - Serialize the syscall list and filter list into JSON objects using `serde` and save at current path for later reference
 - Install user-defined filters as BPF programs for current and child processes
-- Optionally Justine Tunney's Linux port of `pledge` from upstream or use the local version to  wrap around command invocations with user-specified flags
+- Support for running in three modes: interactively as usual, non-interactively by directly supplying all necessary arguments during execution and via a Unix IPC socket as an API layer for communication
+- Optionally fetch Justine Tunney's Linux port of `pledge` from upstream or use the local version to wrap around command invocations
 - Provide intuitive prompts to simplify the process of constructing `seccomp` filters and selecting `pledge` promises and `unveil` path permissions
-- Support running non-interactively by directly supplying all necessary arguments during execution
 
 ## Dependencies
 
@@ -56,7 +56,7 @@ cargo build --release
 Here is a  quick overview of `seccomp-pledge`:
 ```sh
 USAGE:
-    <path to seccomp-pledge binary> [--check | --no-check] [--local | --remote] [COMMAND]...
+    <path to seccomp-pledge binary> [--check | --no-check] [--local | --remote] [--api | --no-api] [COMMAND]...
     
 ARGS:
     <command>... Sandbox command
@@ -70,6 +70,10 @@ FLAGS:
         Use the local pledge binary supplied
     --remote
         Fetch remote pledge binary from upstream using wget
+    --api
+        Communicate via Unix socket API
+    --no-api
+        Disable Unix socket API
     -v [PERMS]:PATH
         Unveil path. Defaults to read-only operations
     -p  PROMISES
@@ -77,7 +81,8 @@ FLAGS:
 ```
 
 When the `-v` and `-p` flags are supplied, `seccomp-pledge` will run in non-interactive mode, assuming all the necessary arguments have been provided during execution. This skips `seccomp` filtering.
-Otherwise, it runs in interactive mdoe, guiding the user through the different stages of creating the `seccomp` filtering policy and defining the `pledge` sandbox.
+When the `--api` flag is supplied, `seccomp-pledge` will run in API mode, creating a Unix socket at `/tmp/seccomp-pledge.sock` which can then be used for communication using some tool like the Linux port of OpenBSD's `netcat` [`nc -U /tmp/seccomp-pledge.sock`].
+Otherwise, it runs in standard interactive mode, guiding the user through the different stages of creating the `seccomp` filtering policy and defining the `pledge` sandbox.
 
 ## Demonstrations
 
