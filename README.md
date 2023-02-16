@@ -2,7 +2,7 @@
 
 ## Introduction
 
-In a nutshell, `seccomp-pledge` is a systems hardening tool that marries `seccomp-bpf` to `pledge` and `unveil`.
+`seccomp-pledge` is a systems hardening tool for Linux that marries `seccomp-bpf` to `pledge` and `unveil`.
 
 For reference, `seccomp-bpf` is a feature in the Linux kernel that allows specifying filters for system calls spawned by processes in the form of Berkeley Packet Filter (BPF) programs. A configurable set of policies (Allow, Errno, Trap, etc.) determines the kind of filtering that will be applied to system calls intercepted by `seccomp`. This minimizes the attack surface of the kernel that is exposed to userland applications.
 
