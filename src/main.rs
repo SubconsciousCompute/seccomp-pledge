@@ -13,13 +13,36 @@ use std::os::unix::net::{UnixStream,UnixListener};
 use std::io::{BufRead, BufReader};
 
 
+// Comparison operators in the format of seccompiler: plain strings such as "eq", except for
+// masked equality, which is an object holding the mask: {"masked_eq": mask}
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum CmpOp {
+    Eq,
+    Ne,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+    MaskedEq(u64),
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ArgsList {
     index: u32,
     r#type: String,
-    op: String,
-    val: u32,
+    op: CmpOp,
+    val: u64,
     comment: Field<String>,
+}
+
+// Parse a decimal number, or a hexadecimal one if it starts with "0x"
+fn parse_number(text: &str) -> Option<u64> {
+    let text = text.trim();
+    match text.strip_prefix("0x").or_else(|| text.strip_prefix("0X")) {
+        Some(hex) => u64::from_str_radix(hex, 16).ok(),
+        None => text.parse().ok(),
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -214,8 +237,43 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>, stream
                         };
                         let op: String = input.chars().filter(|c| !c.is_whitespace()).collect();
                         input = String::new();
+                        let op = match op.as_str() {
+                            "eq" => CmpOp::Eq,
+                            "ne" => CmpOp::Ne,
+                            "lt" => CmpOp::Lt,
+                            "le" => CmpOp::Le,
+                            "gt" => CmpOp::Gt,
+                            "ge" => CmpOp::Ge,
+                            "masked_eq" => {
+                                // The argument is ANDed with the mask before the comparison
+                                let text = "\nEnter the mask (decimal, or hexadecimal with a 0x prefix): ";
+                                if let Some(stream) = stream { write(stream, text); } else {
+                                        print!("{text}");
+                                        flush();
+                                };
+                                if let Some(stream) = stream { input = read(stream); } else if io::stdin().read_line(&mut input).is_err() {
+                                    eprintln!("\nError: Unable to read input");
+                                    exit(1);
+                                };
+                                let mask = if let Some(number) = parse_number(&input) {
+                                    number
+                                } else {
+                                    eprintln!("\nError: Not a number");
+                                    exit(1);
+                                };
+                                input = String::new();
+                                CmpOp::MaskedEq(mask)
+                            }
+                            _ => {
+                                eprintln!("\nError: Invalid comparison operator");
+                                exit(1);
+                            }
+                        };
                         // Provide a list of possible values for the argument size
-                        let text = "\nEnter the argument size (dword = 4 bytes, qword = 8 bytes): ";
+                        let text = "\nEnter the argument size (dword = 4 bytes, qword = 8 bytes).\n\
+                                    Use dword for int and unsigned int arguments: the kernel ignores the upper 32 bits of those\n\
+                                    arguments, and dword does too. qword compares the whole 64-bit register, so a rule such as \"eq\"\n\
+                                    can be bypassed by setting the upper 32 bits (use dword, or masked_eq with a mask of 0xffffffff): ";
                         if let Some(stream) = stream { write(stream, text); } else {
                                 print!("{text}");
                                 flush();
@@ -225,6 +283,10 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>, stream
                             exit(1);
                         };
                         let r#type: String = input.chars().filter(|c| !c.is_whitespace()).collect();
+                        if r#type != "dword" && r#type != "qword" {
+                            eprintln!("\nError: Invalid argument size");
+                            exit(1);
+                        }
                         input = String::new();
                         let text = "\nEnter the value to be checked against: ";
                         if let Some(stream) = stream { write(stream, text); } else {
@@ -235,7 +297,7 @@ pub fn seccomp(application_name: &String, application_args: &Vec<String>, stream
                             eprintln!("\nError: Unable to read input");
                             exit(1);
                         };
-                        let val = if let Ok(number) = input.trim().parse() {
+                        let val = if let Some(number) = parse_number(&input) {
                             number
                         } else {
                             eprintln!("\nError: Not a number");
@@ -1028,5 +1090,69 @@ pub fn main() {
         println!("\nYou are running a non-Linux system. Seccomp-bpf is unsupported. Skipping seccomp filtering...");
         println!("\nSocket API is unavailable. Running in interactive mode...");
         pledge(&application_name, &application_args, &String::new(), &pledge_source, None);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn cmp_op_serializes_like_seccompiler() {
+        assert_eq!(serde_json::to_value(CmpOp::Eq).unwrap(), json!("eq"));
+        assert_eq!(serde_json::to_value(CmpOp::Ge).unwrap(), json!("ge"));
+        assert_eq!(
+            serde_json::to_value(CmpOp::MaskedEq(0xffff_ffff)).unwrap(),
+            json!({"masked_eq": 4294967295u64})
+        );
+    }
+
+    #[test]
+    fn parse_number_accepts_decimal_and_hex() {
+        assert_eq!(parse_number("10\n"), Some(10));
+        assert_eq!(parse_number(" 0x10 "), Some(16));
+        assert_eq!(parse_number("0XfFfFfFfF"), Some(0xffff_ffff));
+        assert_eq!(parse_number("abc"), None);
+        assert_eq!(parse_number("0x"), None);
+    }
+
+    // The JSON written for each operator must be accepted by seccompiler
+    #[test]
+    fn filters_compile_with_every_operator() {
+        let ops = [
+            CmpOp::Eq,
+            CmpOp::Ne,
+            CmpOp::Lt,
+            CmpOp::Le,
+            CmpOp::Gt,
+            CmpOp::Ge,
+            CmpOp::MaskedEq(0xffff_ffff),
+        ];
+        for op in ops {
+            for size in ["dword", "qword"] {
+                let mut filters: HashMap<String, FilterList> = HashMap::new();
+                filters.insert(
+                    "f".to_string(),
+                    FilterList {
+                        mismatch_action: "allow".to_string(),
+                        match_action: "trap".to_string(),
+                        filter: vec![SyscallList {
+                            syscall: "socket".to_string(),
+                            args: Field::Present(Some(vec![ArgsList {
+                                index: 0,
+                                r#type: size.to_string(),
+                                op: op.clone(),
+                                val: 16,
+                                comment: Field::Missing,
+                            }])),
+                        }],
+                    },
+                );
+                let json = serde_json::to_string_pretty(&filters).unwrap();
+                seccompiler::compile_from_json(json.as_bytes(), seccompiler::TargetArch::x86_64)
+                    .unwrap_or_else(|e| panic!("{op:?} {size}: {e}\n{json}"));
+            }
+        }
     }
 }
